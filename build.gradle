@@ -32,7 +32,7 @@ task clean(type: Delete) {
 ext {
     // Sdk and tools
     // Support library and architecture components support minSdk 14 and above.
-    minSdkVersion = 16
+    minSdkVersion = 21
     targetSdkVersion = 30
     compileSdkVersion = 30
 
@@ -50,7 +50,7 @@ ext {
     constraintVersion = '2.0.0-rc1'
     dexMakerVersion = '2.12.1'
     coroutinesVersion = '1.2.1'
-    roomVersion = '2.2.5'
+    roomVersion = '2.3.0'
     koinVersion = '2.0.1'
     truthVersion = '0.44'
     junitVersion = '4.12'
