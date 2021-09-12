@@ -1,16 +1,26 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -65,7 +75,37 @@ class RemindersActivityTest :
         }
     }
 
+    @Test
+    fun saveReminder_check() = runBlocking {
+        val title = "Welcome test"
+        val description = "XD"
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
 
-//    TODO: add End to End testing to the app
+        // save reminder
+        onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
+        onView(withId(R.id.reminderTitle))
+            .perform(ViewActions.replaceText(title))
+        onView(withId(R.id.reminderDescription))
+            .perform(ViewActions.replaceText(description))
+        onView(withId(R.id.selectLocation)).perform(ViewActions.click())
+        onView(withId(R.id.map_select_location)).perform(ViewActions.longClick())
+        pressBack()
+        repository.saveReminder(
+            ReminderDTO(
+                title,
+                description,
+                "test location",
+                0.0,
+                0.0
+            )
+        )
+
+        // check
+        onView(ViewMatchers.withText(title))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(ViewMatchers.withText(description))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        activityScenario.close()
+    }
 
 }
