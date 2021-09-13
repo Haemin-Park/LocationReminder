@@ -10,6 +10,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -52,6 +53,17 @@ class RemindersLocalRepositoryTest {
 
     @After
     fun closeDataBase() = database.close()
+
+    @Test
+    fun noReminder_returnError() = runBlocking {
+        repository.deleteAllReminders()
+        val reminder = repository.getReminder("undefined_id")
+        assertThat(reminder is Result.Error, `is`(true))
+
+        reminder as Result.Error
+        assertThat(reminder.message, `is`("Reminder not found!"))
+    }
+
 
     @Test
     fun saveReminder_getReminderById_existInDB() = mainCoroutineRule.runBlockingTest {
