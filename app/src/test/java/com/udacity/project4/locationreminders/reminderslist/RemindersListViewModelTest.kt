@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
@@ -28,14 +29,21 @@ class RemindersListViewModelTest {
 
     @get: Rule
     var mainCoroutineRule = MainCoroutineRule()
+
     private lateinit var remindersListViewModel: RemindersListViewModel
+    private lateinit var dataSource: FakeDataSource
+
+    private val testReminder = ReminderDTO("title", "description", "location", 1.0, 1.0)
+    private val testReminders: MutableList<ReminderDTO> =
+        mutableListOf(testReminder)
 
     @Before
     fun setUp() {
         stopKoin()
+        dataSource = FakeDataSource(testReminders)
         remindersListViewModel = RemindersListViewModel(
             ApplicationProvider.getApplicationContext(),
-            FakeDataSource()
+            dataSource
         )
     }
 
@@ -49,4 +57,12 @@ class RemindersListViewModelTest {
         loading = remindersListViewModel.showLoading.getOrAwaitValue()
         assertThat(loading, `is`(false))
     }
+
+    @Test
+    fun unavailableReminders_showError() {
+        dataSource.setReturnError(true)
+        remindersListViewModel.loadReminders()
+        assertThat(remindersListViewModel.showSnackBar.getOrAwaitValue(), `is`("No reminders found"))
+    }
+
 }
